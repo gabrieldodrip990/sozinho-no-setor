@@ -10,8 +10,11 @@
 		"%USER% gips their breasts.",
 		"%USER% delicately teases their nipple."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/squelch1.ogg",
+		"modular_carlinhos/sound/interaction/squelch2.ogg",
+		"modular_carlinhos/sound/interaction/squelch3.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

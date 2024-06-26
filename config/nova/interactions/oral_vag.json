@@ -9,8 +9,10 @@
 		"%USER% plays with %TARGET%'s pussy using their tongue.",
 		"%USER% licks %TARGET%'s vagina."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/oral1.ogg",
+		"modular_carlinhos/sound/interaction/oral2.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

@@ -12,8 +12,10 @@
 		"%USER% pounds %TARGET%'s pussy.",
 		"%USER% thrusts in and out of %TARGET%'s cunt."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/champ1.ogg",
+		"modular_carlinhos/sound/interaction/champ2.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

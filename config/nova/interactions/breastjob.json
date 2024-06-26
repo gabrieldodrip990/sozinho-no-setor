@@ -9,8 +9,14 @@
 		"%USER% jerks %TARGET% off with their breasts.",
 		"%USER% stimulates %TARGET%'s shaft with their breasts."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/bang1.ogg",
+		"modular_carlinhos/sound/interaction/bang2.ogg",
+		"modular_carlinhos/sound/interaction/bang3.ogg",
+		"modular_carlinhos/sound/interaction/bang4.ogg",
+		"modular_carlinhos/sound/interaction/bang5.ogg",
+		"modular_carlinhos/sound/interaction/bang6.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

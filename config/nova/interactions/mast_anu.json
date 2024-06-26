@@ -8,8 +8,9 @@
 	"message": [
 		"%USER% fingers their rear."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"/modular_carlinhos/sound/interaction/champ_fingering.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

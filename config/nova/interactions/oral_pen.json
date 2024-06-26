@@ -10,8 +10,19 @@
 		"%USER% kisses the tip of %TARGET%'s shaft.",
 		"%USER% licks %TARGET%'s dick."
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/bj1.ogg",
+		"modular_carlinhos/sound/interaction/bj2.ogg",
+		"modular_carlinhos/sound/interaction/bj3.ogg",
+		"modular_carlinhos/sound/interaction/bj4.ogg",
+		"modular_carlinhos/sound/interaction/bj5.ogg",
+		"modular_carlinhos/sound/interaction/bj6.ogg",
+		"modular_carlinhos/sound/interaction/bj7.ogg",
+		"modular_carlinhos/sound/interaction/bj8.ogg",
+		"modular_carlinhos/sound/interaction/bj9.ogg",
+		"modular_carlinhos/sound/interaction/bj10.ogg",
+		"modular_carlinhos/sound/interaction/bj11.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

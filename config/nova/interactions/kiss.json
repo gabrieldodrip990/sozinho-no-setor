@@ -10,8 +10,13 @@
 		"%USER% kisses %TARGET%.",
 		"%USER% smooches %TARGET%"
 	],
-	"sound_use": 0,
+	"sound_use": 1,
 	"sound_possible": [
+		"modular_carlinhos/sound/interaction/kiss1.ogg",
+		"modular_carlinhos/sound/interaction/kiss2.ogg",
+		"modular_carlinhos/sound/interaction/kiss3.ogg",
+		"modular_carlinhos/sound/interaction/kiss4.ogg",
+		"modular_carlinhos/sound/interaction/kiss5.ogg"
 	],
 	"sound_range": 7,
 	"interaction_requires": [

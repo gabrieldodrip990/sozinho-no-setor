@@ -1,0 +1,27 @@
+{
+	"name": "sit on face",
+	"description": "show your ass a little closer to him.",
+	"usage": "other",
+	"category": "Lewd",
+	"color": "purple",
+	"lewd": 1,
+	"distance_allowed": 0,
+	"message": [
+		"%USER% puts his ass in %TARGET%'s face.",
+		"%USER% rubs his ass on %TARGET%'s face."
+	],
+	"sound_use": 1,
+	"sound_possible": [
+		"/modular_carlinhos/sound/interaction/champ_fingering.ogg"
+	],
+	"sound_range": 7,
+	"interaction_requires": [
+		"anus"
+	],
+	"user_required_parts": [
+	],
+	"user_arousal": 1,
+	"user_pleasure": 1,
+	"target_arousal": 4,
+	"target_pleasure": 4
+}
