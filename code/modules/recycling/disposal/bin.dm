@@ -66,6 +66,7 @@
 		COMSIG_TURF_RECEIVE_SWEEPED_ITEMS = PROC_REF(ready_for_trash),
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
+	ADD_TRAIT(src, TRAIT_COMBAT_MODE_SKIP_INTERACTION, INNATE_TRAIT)
 	return INITIALIZE_HINT_LATELOAD //we need turfs to have air
 
 /// Checks if there a connecting trunk diposal pipe under the disposal
@@ -119,7 +120,7 @@
 			to_chat(user, span_notice("You [panel_open ? "remove":"attach"] the screws around the power connection."))
 			return
 		else if(I.tool_behaviour == TOOL_WELDER && panel_open)
-			if(!I.tool_start_check(user, amount=1))
+			if(!I.tool_start_check(user, amount=1, heat_required = HIGH_TEMPERATURE_REQUIRED))
 				return
 
 			to_chat(user, span_notice("You start slicing the floorweld off \the [src]..."))
@@ -128,7 +129,7 @@
 				deconstruct()
 			return
 
-	if(!user.combat_mode)
+	if(!user.combat_mode || (I.item_flags & NOBLUDGEON))
 		if((I.item_flags & ABSTRACT) || !user.temporarilyRemoveItemFromInventory(I))
 			return
 		place_item_in_disposal(I, user)
@@ -416,7 +417,7 @@
 	data["isai"] = HAS_AI_ACCESS(user)
 	return data
 
-/obj/machinery/disposal/bin/ui_act(action, params)
+/obj/machinery/disposal/bin/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
 	if(.)
 		return
@@ -624,6 +625,12 @@
 	SIGNAL_HANDLER
 	if((shove_flags & SHOVE_KNOCKDOWN_BLOCKED) || !(shove_flags & SHOVE_BLOCKED))
 		return
+	var/cur_density = density
+	density = FALSE
+	if (!target.Move(get_turf(src), get_dir(target, src)))
+		density = cur_density
+		return
+	density = cur_density
 	target.Knockdown(SHOVE_KNOCKDOWN_SOLID)
 	target.forceMove(src)
 	target.visible_message(span_danger("[shover.name] shoves [target.name] into \the [src]!"),

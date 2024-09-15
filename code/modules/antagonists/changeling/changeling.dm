@@ -40,7 +40,7 @@
 	/// The max chemical storage the changeling currently has.
 	var/total_chem_storage = 75
 	/// The chemical recharge rate per life tick.
-	var/chem_recharge_rate = 0.5
+	var/chem_recharge_rate = 1
 	/// Any additional modifiers triggered by changelings that modify the chem_recharge_rate.
 	var/chem_recharge_slowdown = 0
 	/// The range this ling can sting things.
@@ -262,14 +262,18 @@
 	SIGNAL_HANDLER
 
 	var/delta_time = DELTA_WORLD_TIME(SSmobs)
+	var/mob/living/living_owner = owner.current
 
 	// If dead, we only regenerate up to half chem storage.
 	if(owner.current.stat == DEAD)
 		adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time, total_chem_storage * 0.5)
 
-	// If we're not dead - we go up to the full chem cap.
+	// If we're not dead and not on fire - we go up to the full chem cap at normal speed. If on fire we only regenerate at 1/4th the normal speed
 	else
-		adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time)
+		if(living_owner.fire_stacks && living_owner.on_fire)
+			adjust_chemicals((chem_recharge_rate - 0.75) * delta_time)
+		else
+			adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time)
 
 /**
  * Signal proc for [COMSIG_LIVING_POST_FULLY_HEAL]
@@ -547,6 +551,8 @@
 	new_profile.emissive_eyes = target.emissive_eyes
 	new_profile.scream_type = target.selected_scream?.type || /datum/scream_type/none
 	new_profile.laugh_type = target.selected_laugh?.type || /datum/laugh_type/none
+	new_profile.target_height = target.get_mob_height()
+	new_profile.target_mob_size = target.mob_size
 	//NOVA EDIT ADDITION END
 
 	// Grab skillchips they have
@@ -797,6 +803,8 @@
 	qdel(user.selected_laugh)
 	user.selected_scream = new chosen_profile.scream_type
 	user.selected_laugh = new chosen_profile.laugh_type
+	user.mob_size = chosen_profile.target_mob_size
+	user.set_mob_height(chosen_profile.target_height)
 
 	// Only certain quirks will be copied, to avoid making the changeling blind or wheelchair-bound when they can simply pretend to have these quirks.
 

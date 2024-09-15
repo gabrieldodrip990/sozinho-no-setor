@@ -42,13 +42,10 @@
 	update_brightness()
 	register_context()
 
-	if(toggle_context)
-		RegisterSignal(src, COMSIG_HIT_BY_SABOTEUR, PROC_REF(on_saboteur))
-
 	var/static/list/slapcraft_recipe_list = list(/datum/crafting_recipe/flashlight_eyes)
 
-	AddComponent(
-		/datum/component/slapcrafting,\
+	AddElement(
+		/datum/element/slapcrafting,\
 		slapcraft_recipes = slapcraft_recipe_list,\
 	)
 
@@ -287,12 +284,12 @@
 		setDir(user.dir)
 
 /// when hit by a light disruptor - turns the light off, forces the light to be disabled for a few seconds
-/obj/item/flashlight/proc/on_saboteur(datum/source, disrupt_duration)
-	SIGNAL_HANDLER
+/obj/item/flashlight/on_saboteur(datum/source, disrupt_duration)
+	. = ..()
 	if(light_on)
 		toggle_light()
 	COOLDOWN_START(src, disabled_time, disrupt_duration)
-	return COMSIG_SABOTEUR_SUCCESS
+	return TRUE
 
 /obj/item/flashlight/pen
 	name = "penlight"
@@ -541,7 +538,6 @@
 	randomize_fuel = FALSE
 	trash_type = /obj/item/trash/candle
 	can_be_extinguished = TRUE
-	var/scented_type //NOVA EDIT ADDITION /// Pollutant type for scented candles
 	/// The current wax level, used for drawing the correct icon
 	var/current_wax_level = 1
 	/// The previous wax level, remembered so we only have to make 3 update_appearance calls total as opposed to every tick
@@ -696,6 +692,9 @@
 	color = LIGHT_COLOR_GREEN
 	light_color = LIGHT_COLOR_GREEN
 
+/obj/item/flashlight/lantern/jade/on
+	start_on = TRUE
+
 /obj/item/flashlight/slime
 	gender = PLURAL
 	name = "glowing slime extract"
@@ -711,8 +710,6 @@
 	light_system = OVERLAY_LIGHT
 
 /obj/item/flashlight/emp
-	special_desc_requirement = EXAMINE_CHECK_SYNDICATE // NOVA EDIT
-	special_desc = "This flashlight is equipped with a miniature EMP generator." //NOVA EDIT
 	var/emp_max_charges = 4
 	var/emp_cur_charges = 4
 	var/charge_timer = 0
@@ -932,6 +929,7 @@
 	light_range = 4
 	light_power = 2
 	alpha = 0
+	layer = ABOVE_OPEN_TURF_LAYER
 	plane = FLOOR_PLANE
 	anchored = TRUE
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
@@ -962,14 +960,10 @@
 	var/dark_light_range = 2.5
 	///Variable to preserve old lighting behavior in flashlights, to handle darkness.
 	var/dark_light_power = -3
-	var/on = FALSE
 
 /obj/item/flashlight/flashdark/update_brightness()
 	. = ..()
-	if(on)
-		set_light(dark_light_range, dark_light_power)
-	else
-		set_light(0)
+	set_light(dark_light_range, dark_light_power)
 
 //type and subtypes spawned and used to give some eyes lights,
 /obj/item/flashlight/eyelight
