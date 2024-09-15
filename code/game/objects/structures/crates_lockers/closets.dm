@@ -157,8 +157,8 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 	register_context()
 
 	if(opened)
-		opened = FALSE //nessassary because open() proc will early return if its true
-		if(open(special_effects = FALSE)) //closets which are meant to be open by default dont need to be animated open
+		opened = FALSE //necessary because open() proc will early return if its true
+		if(open(special_effects = FALSE)) //closets which are meant to be open by default don't need to be animated open
 			return
 	update_appearance()
 
@@ -182,7 +182,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 
 //USE THIS TO FILL IT, NOT INITIALIZE OR NEW
 /obj/structure/closet/proc/PopulateContents()
-	SEND_SIGNAL(src, COMSIG_CLOSET_POPULATE_CONTENTS)
+	return
 
 /// Populate the closet with stuff that needs to be added before it is opened.
 /// This is useful for things like traitor objectives.
@@ -452,6 +452,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 	if (!contents_initialized)
 		contents_initialized = TRUE
 		PopulateContents()
+		SEND_SIGNAL(src, COMSIG_CLOSET_CONTENTS_INITIALIZED)
 
 	var/atom/L = drop_location()
 	for(var/atom/movable/AM in src)
@@ -887,7 +888,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 			user.log_message("[welded ? "welded":"unwelded"] closet [src] with [weapon]", LOG_GAME)
 			update_appearance()
 
-	else if(!user.combat_mode)
+	else if(!user.combat_mode || (weapon.item_flags & NOBLUDGEON))
 		var/item_is_id = weapon.GetID()
 		if(!item_is_id)
 			return FALSE
@@ -913,6 +914,8 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 
 /obj/structure/closet/mouse_drop_receive(atom/movable/O, mob/living/user, params)
 	if(!istype(O) || O.anchored || istype(O, /atom/movable/screen))
+		return
+	if(!istype(user) || user.incapacitated || user.body_position == LYING_DOWN)
 		return
 	if(user == O) //try to climb onto it
 		return ..()
@@ -1012,7 +1015,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 		return FALSE
 	return TRUE
 
-/obj/structure/closet/container_resist_act(mob/living/user)
+/obj/structure/closet/container_resist_act(mob/living/user, loc_required = TRUE)
 	if(isstructure(loc))
 		relay_container_resist_act(user, loc)
 	if(opened)
@@ -1037,7 +1040,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 	addtimer(CALLBACK(src, PROC_REF(check_if_shake)), 1 SECONDS)
 
 	if(do_after(user,(breakout_time), target = src))
-		if(!user || user.stat != CONSCIOUS || user.loc != src || opened || (!locked && !welded) )
+		if(!user || user.stat != CONSCIOUS || (loc_required && (user.loc != src)) || opened || (!locked && !welded) )
 			return
 		//we check after a while whether there is a point of resisting anymore and whether the user is capable of resisting
 		user.visible_message(span_danger("[user] successfully broke out of [src]!"),
@@ -1065,7 +1068,7 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 			addtimer(CALLBACK(src, PROC_REF(check_if_shake)), next_check_time)
 			return TRUE
 
-	// If we reach here, nobody is resisting, so dont shake
+	// If we reach here, nobody is resisting, so don't shake
 	return FALSE
 
 /obj/structure/closet/proc/bust_open()
@@ -1188,13 +1191,13 @@ GLOBAL_LIST_EMPTY(roundstart_station_closets)
 		return
 	if(!opened && ((shove_flags & SHOVE_KNOCKDOWN_BLOCKED) || !(shove_flags & SHOVE_BLOCKED)))
 		return
-	var/was_opened = opened
-	if(!toggle())
-		return
-	if(was_opened)
+	if(opened)
+		if (target.loc != loc)
+			return
 		target.forceMove(src)
 	else
 		target.Knockdown(SHOVE_KNOCKDOWN_SOLID)
+	toggle()
 	update_icon()
 	target.visible_message(span_danger("[shover.name] shoves [target.name] into [src]!"),
 		span_userdanger("You're shoved into [src] by [shover.name]!"),

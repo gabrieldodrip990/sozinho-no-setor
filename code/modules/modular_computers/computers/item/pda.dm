@@ -38,10 +38,8 @@
 		/datum/computer_file/program/messenger,
 		/datum/computer_file/program/nt_pay,
 		/datum/computer_file/program/notepad,
-		// NOVA EDIT ADDITION START
-		/datum/computer_file/program/crew_manifest, // Adds crew manifest to all base tablets
-		/datum/computer_file/program/maintenance/camera // Adds camera to all base tablets
-		// SKRAT EDIT ADDITION END
+		/datum/computer_file/program/crew_manifest,
+		/datum/computer_file/program/maintenance/camera, // NOVA EDIT ADDITION - Adds camera to all base tablets
 	)
 	///List of items that can be stored in a PDA
 	var/static/list/contained_item = list(
@@ -50,7 +48,7 @@
 		/obj/item/lipstick,
 		/obj/item/flashlight/pen,
 		/obj/item/reagent_containers/hypospray/medipen,
-		/obj/item/clothing/mask/cigarette,
+		/obj/item/cigarette,
 	)
 
 /obj/item/modular_computer/pda/Initialize(mapload)
@@ -144,6 +142,11 @@
 
 	return . || NONE
 
+/obj/item/modular_computer/pda/interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)
+	if(iscash(interacting_with))
+		return money_act(user,interacting_with)
+	return NONE
+
 /obj/item/modular_computer/pda/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
 	. = ..()
 	if(.)
@@ -153,14 +156,14 @@
 	if(tool.w_class >= WEIGHT_CLASS_SMALL) // Anything equal to or larger than small won't work
 		user.balloon_alert(user, "too big!")
 		return ITEM_INTERACT_BLOCKING
-	if(inserted_item)
-		balloon_alert(user, "no room!")
-		return ITEM_INTERACT_BLOCKING
 	if(!user.transferItemToLoc(tool, src))
 		return ITEM_INTERACT_BLOCKING
-	balloon_alert(user, "inserted [tool]")
-	inserted_item = tool
-	playsound(src, 'sound/machines/pda_button1.ogg', 50, TRUE)
+	if(inserted_item)
+		swap_pen(user, tool)
+	else
+		balloon_alert(user, "inserted [tool]")
+		inserted_item = tool
+		playsound(src, 'sound/machines/pda_button1.ogg', 50, TRUE)
 	return ITEM_INTERACT_SUCCESS
 
 
@@ -188,6 +191,14 @@
 		inserted_item = null
 		update_appearance()
 		playsound(src, 'sound/machines/pda_button2.ogg', 50, TRUE)
+
+/obj/item/modular_computer/pda/proc/swap_pen(mob/user, obj/item/tool)
+	if(inserted_item)
+		balloon_alert(user, "swapped pens")
+		user.put_in_hands(inserted_item)
+		inserted_item = tool
+		update_appearance()
+		playsound(src, 'sound/machines/pda_button1.ogg', 50, TRUE)
 
 /obj/item/modular_computer/pda/proc/explode(mob/target, mob/bomber, from_message_menu = FALSE)
 	var/turf/current_turf = get_turf(src)
@@ -412,7 +423,7 @@
 	return TRUE
 
 /obj/item/modular_computer/pda/silicon/ui_state(mob/user)
-	return GLOB.reverse_contained_state
+	return GLOB.deep_inventory_state
 
 /obj/item/modular_computer/pda/silicon/cyborg/syndicate
 	icon_state = "tablet-silicon-syndicate"

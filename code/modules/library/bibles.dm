@@ -186,7 +186,7 @@ GLOBAL_LIST_INIT(bibleitemstates, list(
 		return FALSE
 	if(!istype(user) || !user.is_holding(src))
 		return FALSE
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return FALSE
 	if(user.mind?.holy_role != HOLY_ROLE_HIGHPRIEST)
 		return FALSE
@@ -269,9 +269,6 @@ GLOBAL_LIST_INIT(bibleitemstates, list(
 	playsound(target_mob, SFX_PUNCH, 25, TRUE, -1)
 	log_combat(user, target_mob, "attacked", src)
 
-/obj/item/book/bible/storage_insert_on_interaction(datum/storage, atom/storage_holder, mob/user)
-	return !istype(storage_holder, /obj/item/book/bible)
-
 /obj/item/book/bible/interact_with_atom(atom/bible_smacked, mob/living/user, list/modifiers)
 	if(SEND_SIGNAL(bible_smacked, COMSIG_BIBLE_SMACKED, user) & COMSIG_END_BIBLE_CHAIN)
 		return ITEM_INTERACT_SUCCESS
@@ -310,26 +307,13 @@ GLOBAL_LIST_INIT(bibleitemstates, list(
 		if(.)
 			return .
 
-	if(istype(bible_smacked, /obj/item/cult_bastard) && !IS_CULTIST(user))
-		var/obj/item/cult_bastard/sword = bible_smacked
-		bible_smacked.balloon_alert(user, "exorcising...")
+	if(istype(bible_smacked, /obj/item/melee/cultblade/haunted) && !IS_CULTIST(user))
+		var/obj/item/melee/cultblade/haunted/sword = bible_smacked
+		sword.balloon_alert(user, "exorcising...")
 		playsound(src,'sound/hallucinations/veryfar_noise.ogg',40,TRUE)
 		if(do_after(user, 4 SECONDS, target = sword))
 			playsound(src,'sound/effects/pray_chaplain.ogg',60,TRUE)
-			for(var/obj/item/soulstone/stone in sword.contents)
-				stone.required_role = null
-				for(var/mob/living/basic/shade/shade in stone)
-					var/datum/antagonist/cult/cultist = shade.mind.has_antag_datum(/datum/antagonist/cult)
-					if(cultist)
-						cultist.silent = TRUE
-						cultist.on_removal()
-						SSblackbox.record_feedback("tally", "cult_shade_purified", 1)
-					shade.theme = THEME_HOLY
-					shade.name = "Purified [shade.real_name]"
-					shade.update_appearance(UPDATE_ICON_STATE)
-				stone.release_shades(user)
-				qdel(stone)
-			new /obj/item/nullrod/claymore(get_turf(sword))
+			new /obj/item/nullrod/nullblade(get_turf(sword))
 			user.visible_message(span_notice("[user] exorcises [sword]!"))
 			qdel(sword)
 			return ITEM_INTERACT_SUCCESS

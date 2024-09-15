@@ -125,7 +125,7 @@
 		return TRUE
 
 	generated_objectives_and_spells = TRUE
-	mind.set_assigned_role(SSjob.GetJobType(/datum/job/revenant))
+	mind.set_assigned_role(SSjob.get_job_type(/datum/job/revenant))
 	mind.special_role = ROLE_REVENANT
 	SEND_SOUND(src, sound('sound/effects/ghost.ogg'))
 	mind.add_antag_datum(/datum/antagonist/revenant)
@@ -149,6 +149,10 @@
 
 	update_appearance(UPDATE_ICON)
 	update_health_hud()
+
+/mob/living/basic/revenant/AltClickOn(atom/target)
+	if(CAN_I_SEE(target))
+		client.loot_panel.open(get_turf(target))
 
 /mob/living/basic/revenant/get_status_tab_items()
 	. = ..()

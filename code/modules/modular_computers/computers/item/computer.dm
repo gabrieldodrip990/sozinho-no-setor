@@ -19,7 +19,7 @@
 	///The disk in this PDA. If set, this will be inserted on Initialize.
 	var/obj/item/computer_disk/inserted_disk
 	///The power cell the computer uses to run on.
-	var/obj/item/stock_parts/cell/internal_cell = /obj/item/stock_parts/cell
+	var/obj/item/stock_parts/power_store/internal_cell = /obj/item/stock_parts/power_store/cell
 	///A pAI currently loaded into the modular computer.
 	var/obj/item/pai_card/inserted_pai
 	///Does the console update the crew manifest when the ID is removed?
@@ -75,13 +75,13 @@
 	var/comp_light_color = COLOR_WHITE
 
 	///Power usage when the computer is open (screen is active) and can be interacted with.
-	var/base_active_power_usage = 15 // NOVA EDIT CHANGE - Original: 125
+	var/base_active_power_usage = 0.4 WATTS //NOVA EDIT CHANGE - ORIGINAL: 2 WATTS
 	///Power usage when the computer is idle and screen is off.
-	var/base_idle_power_usage = 2 // NOVA EDIT CHANGE - Original: 5
+	var/base_idle_power_usage = 0.2 WATTS //NOVA EDIT CHANGE - ORIGINAL: 1 WATTS
 
 	// Modular computers can run on various devices. Each DEVICE (Laptop, Console & Tablet)
-	// must have it's own DMI file. Icon states must be called exactly the same in all files, but may look differently
-	// If you create a program which is limited to Laptops and Consoles you don't have to add it's icon_state overlay for Tablets too, for example.
+	// must have its own DMI file. Icon states must be called exactly the same in all files, but may look differently
+	// If you create a program which is limited to Laptops and Consoles you don't have to add its icon_state overlay for Tablets too, for example.
 
 	///If set, what the icon_state will be if the computer is unpowered.
 	var/icon_state_unpowered
@@ -139,7 +139,6 @@
 	UpdateDisplay()
 	if(has_light)
 		add_item_action(/datum/action/item_action/toggle_computer_light)
-		RegisterSignal(src, COMSIG_HIT_BY_SABOTEUR, PROC_REF(on_saboteur))
 	if(inserted_disk)
 		inserted_disk = new inserted_disk(src)
 	if(internal_cell)
@@ -251,7 +250,7 @@
 /obj/item/modular_computer/get_id_examine_strings(mob/user)
 	. = ..()
 	if(computer_id_slot)
-		. += "\The [src] is displaying [computer_id_slot]."
+		. += "[src] is displaying [computer_id_slot]:"
 		. += computer_id_slot.get_id_examine_strings(user)
 
 /obj/item/modular_computer/proc/print_text(text_to_print, paper_title = "")
@@ -727,6 +726,8 @@
 	UpdateDisplay()
 
 /obj/item/modular_computer/ui_action_click(mob/user, actiontype)
+	if(!issilicon(user))
+		playsound(src, SFX_KEYBOARD_CLICKS, 10, TRUE, FALSE)
 	if(istype(actiontype, /datum/action/item_action/toggle_computer_light))
 		toggle_flashlight(user)
 		return
@@ -751,20 +752,16 @@
 	update_item_action_buttons(force = TRUE) //force it because we added an overlay, not changed its icon
 	return TRUE
 
-/**
- * Disables the computer's flashlight/LED light, if it has one, for a given disrupt_duration.
- *
- * Called when sent COMSIG_HIT_BY_SABOTEUR.
- */
-/obj/item/modular_computer/proc/on_saboteur(datum/source, disrupt_duration)
-	SIGNAL_HANDLER
+//Disables the computer's flashlight/LED light, if it has one, for a given disrupt_duration.
+/obj/item/modular_computer/on_saboteur(datum/source, disrupt_duration)
+	. = ..()
 	if(!has_light)
 		return
 	set_light_on(FALSE)
 	update_appearance()
 	update_item_action_buttons(force = TRUE) //force it because we added an overlay, not changed its icon
 	COOLDOWN_START(src, disabled_time, disrupt_duration)
-	return COMSIG_SABOTEUR_SUCCESS
+	return TRUE
 
 /**
  * Sets the computer's light color, if it has a light.
@@ -831,7 +828,7 @@
 	if(istype(tool, /obj/item/pai_card))
 		return pai_act(user, tool)
 
-	if(istype(tool, /obj/item/stock_parts/cell))
+	if(istype(tool, /obj/item/stock_parts/power_store/cell))
 		return cell_act(user, tool)
 
 	if(istype(tool, /obj/item/photo))
@@ -871,7 +868,7 @@
 	update_appearance(UPDATE_ICON)
 	return ITEM_INTERACT_SUCCESS
 
-/obj/item/modular_computer/proc/cell_act(mob/user, obj/item/stock_parts/cell/new_cell)
+/obj/item/modular_computer/proc/cell_act(mob/user, obj/item/stock_parts/power_store/cell/new_cell)
 	if(ismachinery(physical))
 		return ITEM_INTERACT_BLOCKING
 	if(internal_cell)
